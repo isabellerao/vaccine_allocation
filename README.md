@@ -7,7 +7,7 @@ For some communicable endemic diseases (e.g., influenza, COVID-19), vaccination 
 ## Running the Model
 
 The code can be used to reproduce all graphs and tables in the paper. 
-- The script "SIS COVID Example - Calibration" calibrates the model to the COVID-19 example in New York State.
-- The script "SIS COVID Example - Quality of decisions" generates all tables and graphs for the SIS example in Section 4. 
-- The script "SEIS Example" generates all tables and graphs for the SEIS example in Section 6. 
-- The "requirements.txt" file contains a list of all the packages required for the project, along with their versions. Others can use this file to set up the same environment on their systems.
+- "SIS COVID Example - Calibration.py" calibrates the model to the COVID-19 example in New York State.
+- "SIS COVID Example - Quality of decisions.py" generates all tables and graphs for the SIS example in Section 4. 
+- The script "SEIS Example.py" generates all tables and graphs for the SEIS example in Section 6. 
+- "requirements.txt" contains a list of all the packages required for the project, along with their versions. Others can use this file to set up the same environment on their systems.
