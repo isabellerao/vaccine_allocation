@@ -4,9 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from pyDOE import *
-import math
-import pickle
-import os.path
+
 
 
 plt.rc('text', usetex=True)
@@ -15,7 +13,8 @@ plt.rc('font',**{'family':'serif','serif':['Computer Modern Roman'],'size':14})
 pd.options.display.float_format = "{:3e}".format
 
 
-# Parameters for COVID19 - from literature review
+
+# Parameters
 
 m = 4 # 2 boosters (unvacc, initial, booster 1, booster 2)
 n = 2 # 2 population groups
@@ -118,13 +117,6 @@ beta[0,0] = 4
 beta[1,1] = 3
 beta[0,1] = 1
 beta[1,0] = 1
-
-# Calculate force of infection
-for i in range(n): 
-    lambda_i = 0
-    for j in range(n): 
-        for l in range(m): 
-            lambda_i += beta[i,j]*(1-eta[j,l])*INPUT[2*n*m+j*m+l]
             
 # LYs
 L1 = 65
@@ -136,6 +128,7 @@ q2L2 = 35
 
 L = (L1,L2)
 qL = (q1L1,q2L2)
+
 
 
 # Define model parameters 
@@ -212,7 +205,6 @@ def model(INPUT,ND,v):
     return(end_pop, [all_infections,end_deaths,end_lifeyears,end_qalys])
 
 
-
 # Threshold
 def thresholds(parameters,INPUT,sigma):
     S_pop = 0
@@ -239,9 +231,7 @@ def thresholds(parameters,INPUT,sigma):
 for T in time_horizons: 
     print("T =", T, "days")
     threshold, alpha = thresholds(beta,INPUT,T)
-    print(alpha)
     print('Proportion of the unvaccinated and vaccinated population that can be vaccinated:', threshold)
-
 
 
 # Optimal decisions given by approximations   
@@ -288,7 +278,7 @@ for l in range(n_obj):
     print(temp)
 
 
-# First time period
+# # First time period
 
 
 def approx_function(N,parameters,INPUT,T): 
@@ -312,7 +302,6 @@ def approx_function(N,parameters,INPUT,T):
     return(v_approx, approx_optimal, groups_to_vaccinate)
 
 
-
 def delta(N,parameters,INPUT,T): 
     S1u, S1v, S1b, S1b2, S2u, S2v, S2b, S2b2,    E1u, E1v, E1b, E1b2, E2u, E2v, E2b, E2b2,    I1u, I1v, I1b, I1b2, I2u, I2v, I2b, I2b2, D10, D20 = INPUT
     
@@ -325,7 +314,6 @@ def delta(N,parameters,INPUT,T):
     b2_1_range = np.arange(0, S1b, 0.01)
     b2_2_range = np.arange(0, S2b, 0.01)
     
-    correct = np.zeros(n_obj)
     difference = np.zeros(n_obj)
     
     v_approx, approx_optimal, groups_to_vaccinate = approx_function(N,beta,INPUT,T)
@@ -346,10 +334,6 @@ def delta(N,parameters,INPUT,T):
                                     v_opt[i,:] = v
                                             
     for i in range(n_obj):
-        if numerical_optimal[i] < approx_optimal[i]: 
-            correct[i] = 0
-        else: 
-            correct[i] = 1
         difference[i] = (approx_optimal[i] - numerical_optimal[i])/numerical_optimal[i]*100
     
     return(numerical_optimal, difference, v_opt, v_approx, groups_to_vaccinate)
@@ -358,7 +342,6 @@ def delta(N,parameters,INPUT,T):
 
 l = [r'$v_{1,1}$', r'$v_{1,2}$', r'$v_{1,3}$', r'$v_{2,1}$', r'$v_{2,2}$', r'$v_{2,3}$']
 N_range = np.arange(0, 0.101, 0.01)
-v_opt_all = np.zeros((len(N_range)*n_obj,(m-1)*n))
 v_T1 = []
 
 t = 0
@@ -371,11 +354,8 @@ for T in time_horizons:
     
     k=0
     for N in N_range: 
-        numerical_optimal[k,:], difference[k,:], v_opt[k,:,:], v_approx[k,:,:], temp = delta(N,beta,INPUT,T)
+        numerical_optimal[k,:], difference[k,:], v_opt[k,:,:], v_approx[k,:,:], group_to_vaccinate             = delta(N,beta,INPUT,T)
         k+=1
-    for i in range(n_obj):
-        v_opt_all[i*len(N_range):(i+1)*len(N_range),:] = v_opt[:,i,:]
-        
     
     plt.figure(figsize=(5,4))
     for i in range(difference.shape[1]): #looping through objectives
@@ -384,6 +364,7 @@ for T in time_horizons:
         plt.title("Percentage difference")
     plt.legend(loc = 'upper right', bbox_to_anchor=(2, 0.75))
     plt.ylim((-0.3,3))
+    plt.savefig("Output/SEIS/difference_T1={}.png".format(T), bbox_inches='tight')
     plt.show()
     
     fig, axs = plt.subplots(4, 2, figsize=(14,20))
@@ -409,7 +390,7 @@ for T in time_horizons:
     v_T1.append(v_opt[10])
 
 
-# Second time period
+# # Second time period
 
 
 def delta_2(N,parameters,INPUT,T): 
@@ -438,7 +419,6 @@ def delta_2(N,parameters,INPUT,T):
     
 
 
-v_opt_all2 = np.zeros((len(N_range)*n_obj,(m-1)*n))
 v_T2 = []
 
 t = 0
@@ -451,11 +431,8 @@ for T in time_horizons:
     
     k=0
     for N in N_range: 
-        numerical_optimal2[k,:], difference2[k,:], v_opt2[k,:,:], v_approx2[k,:,:], group_to_vaccinate2 = delta_2(N,beta,INPUT,T)
+        numerical_optimal2[k,:], difference2[k,:], v_opt2[k,:,:], v_approx2[k,:,:], group_to_vaccinate2             = delta_2(N,beta,INPUT,T)
         k+=1
-        
-    for i in range(n_obj):
-        v_opt_all2[i*len(N_range):(i+1)*len(N_range),:] = v_opt2[:,i,:]
         
     plt.figure(figsize=(5,4))
     for i in range(difference2.shape[1]): #looping through objectives
@@ -464,6 +441,7 @@ for T in time_horizons:
         plt.title("Percentage difference")
     plt.legend(loc = 'upper right', bbox_to_anchor=(2, 0.75))
     plt.ylim((-0.3,3))
+    plt.savefig("Output/SEIS/difference_T2={}.png".format(T), bbox_inches='tight')
     plt.show()
     
     fig, axs = plt.subplots(4, 2, figsize=(14,20))
@@ -490,7 +468,6 @@ for T in time_horizons:
     
 
 
-
 for i_obj in range(n_obj):
     print(title_obj[i_obj])
     for T in time_horizons: 
@@ -511,7 +488,6 @@ for i_obj in range(n_obj):
                 
 
 
-
 fig, axs = plt.subplots(4, 2, figsize=(14,20))
 for i in range(v_opt.shape[1]): #looping through objectives
     for j in range((m-1)*n): 
@@ -529,10 +505,11 @@ for i in range(v_opt.shape[1]): #looping through objectives
     axs[i,1].legend(bbox_to_anchor=(1.05, 0.75))
 
 fig.tight_layout(pad = 3)
+plt.savefig("Output/SEIS/v2_all_T2={}.png".format(T), bbox_inches='tight')
 plt.show()
 
 
-# Outcomes averted
+# # Outcomes averted
 
 
 dict = {'T':[],
@@ -654,6 +631,7 @@ for k in range(len(time_horizons)):
     
 pd.set_option('display.float_format', lambda x: f'{x:.3f}')
 df
+
 
 
 

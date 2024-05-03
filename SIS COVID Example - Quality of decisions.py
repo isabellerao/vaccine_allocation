@@ -4,9 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from pyDOE import *
-import math
 import pickle
-import os.path
 
 
 
@@ -17,21 +15,8 @@ pd.options.display.float_format = "{:3e}".format
 
 
 
-def write_excel(filename,sheetname,dataframe):
-    with pd.ExcelWriter(filename, engine='openpyxl', mode='a') as writer: 
-        workBook = writer.book
-        try:
-            workBook.remove(workBook[sheetname])
-        except:
-            print("Worksheet does not exist")
-        finally:
-            dataframe.to_excel(writer, sheet_name=sheetname,index=False)
-            writer.save()
-
-
-
 # Import calibrated parameters and define starting population
-with open('Data/calibrated_parameters_4.pkl', 'rb') as data: 
+with open('Data/calibrated_parameters.pkl', 'rb') as data: 
     beta, INPUT1 = pickle.load(data)
 
 with open('Data/literature_parameters.pkl', 'rb') as data2: 
@@ -140,7 +125,6 @@ def model(INPUT,ND,v): # vaccinated (4) and boosted (4)
     
 
 
-
 # Threshold
 def thresholds(parameters,INPUT,T):
     susceptible = INPUT[0:12]
@@ -163,7 +147,6 @@ def thresholds(parameters,INPUT,T):
 for T in time_horizons: 
     print("T =", T, "days")
     threshold, alpha = thresholds(beta,INPUT,T)
-    print(alpha)
     print('Proportion of the unvaccinated and vaccinated population that can be vaccinated:', threshold)
 
 
@@ -206,7 +189,7 @@ def insight(parameters,INPUT):
 
 groups_to_vaccinate = insight(beta, INPUT) 
 
-print('Optimal vaccination order for first time period (any time horizon)')
+print('Optimal vaccination order for first time period (any time horizon, any level of vaccination)')
 for i in range(n_obj):
     temp = []
     for j in range(2*n_groups): 
@@ -256,7 +239,6 @@ def delta(N,parameters,INPUT,T):
     b3_range = np.arange(0, S3v, 0.01)
     b4_range = np.arange(0, S4v, 0.01)
     
-    correct = np.zeros(n_obj)
     difference = np.zeros(n_obj)
     
     v_approx, approx_optimal, groups_to_vaccinate = approx_function(N,beta,INPUT,T)
@@ -279,10 +261,6 @@ def delta(N,parameters,INPUT,T):
                                             v_opt[i,:] = v
                                             
     for i in range(n_obj):
-        if numerical_optimal[i] < approx_optimal[i]: 
-            correct[i] = 0
-        else: 
-            correct[i] = 1
         difference[i] = (approx_optimal[i] - numerical_optimal[i])/numerical_optimal[i]*100
     
     return(numerical_optimal, difference, v_opt, v_approx, groups_to_vaccinate)
@@ -290,7 +268,6 @@ def delta(N,parameters,INPUT,T):
 
 
 N_range = np.arange(0, 0.101, 0.01)
-v_opt_all = np.zeros((len(N_range)*n_obj,2*n_groups))
 v_T1 = []
 
 t = 0
@@ -305,13 +282,7 @@ for T in time_horizons:
     for N in N_range: 
         numerical_optimal[k,:], difference[k,:], v_opt[k,:,:], v_approx[k,:,:], temp = delta(N,beta,INPUT,T)
         k+=1
-        
-    for i in range(n_obj):
-        v_opt_all[i*len(N_range):(i+1)*len(N_range),:] = v_opt[:,i,:]
-        
-#     write_excel('Output/v_opt_0.01.xlsx','{}'.format(T),pd.DataFrame(v_opt_all))
-    
-    
+                
     plt.figure(figsize=(5,4))
     for i in range(difference.shape[1]): #looping through objectives
         plt.plot(N_range, difference[:,i], 'o', label = title_obj[i], alpha=0.7)
@@ -319,7 +290,7 @@ for T in time_horizons:
         plt.title("Percentage difference")
     plt.legend(loc = 'upper right', bbox_to_anchor=(2, 0.75))
     plt.ylim((-0.1,1))
-#     plt.savefig("Output/difference_0.01_T1={}.eps".format(T))
+    plt.savefig("Output/SIS/difference_T1={}.png".format(T), bbox_inches='tight')
     plt.show()
     
     fig, axs = plt.subplots(4, 2, figsize=(14,20))
@@ -350,19 +321,7 @@ for T in time_horizons:
     
 
 
-plt.figure(figsize=(5,4))
-for i in range(difference.shape[1]): #looping through objectives
-    plt.plot(N_range, difference[:,i], 'o', label = title_obj[i], alpha=0.7)
-    plt.xlabel(r'$\frac{N}{P}$')
-    plt.title("Percentage difference")
-plt.legend(loc = 'upper right', bbox_to_anchor=(2, 0.75))
-plt.ylim((-0.1,1))
-# plt.savefig("Output/difference_0.01_T1={}.eps".format(T))
-plt.show()
-
-
 # # Second time period
-
 
 
 def delta_2(N,parameters,INPUT,T): 
@@ -391,7 +350,6 @@ def delta_2(N,parameters,INPUT,T):
     
 
 
-v_opt_all2 = np.zeros((len(N_range)*n_obj,2*n_groups))
 v_T2 = []
 
 t = 0
@@ -406,12 +364,7 @@ for T in time_horizons:
     for N in N_range: 
         numerical_optimal2[k,:], difference2[k,:], v_opt2[k,:,:], v_approx2[k,:,:], group_to_vaccinate2 = delta_2(N,beta,INPUT,T)
         k+=1
-        
-    for i in range(n_obj):
-        v_opt_all2[i*len(N_range):(i+1)*len(N_range),:] = v_opt2[:,i,:]
-        
-#     write_excel('../../Output/v_opt_2_0.01.xlsx','{}'.format(T),pd.DataFrame(v_opt_all2))
-    
+                
     plt.figure(figsize=(5,4))
     for i in range(difference2.shape[1]): #looping through objectives
         plt.plot(N_range, difference2[:,i], 'o', label = title_obj[i], alpha=0.7)
@@ -419,6 +372,7 @@ for T in time_horizons:
         plt.title("Percentage difference")
     plt.legend(loc = 'upper right', bbox_to_anchor=(2, 0.75))
     plt.ylim((-0.1,1))
+    plt.savefig("Output/SIS/difference_T2={}.png".format(T), bbox_inches='tight')
     plt.show()
     
     fig, axs = plt.subplots(4, 2, figsize=(14,20))
@@ -441,14 +395,17 @@ for T in time_horizons:
         axs[i,1].set_ylabel('Optimal vaccine allocation')
         axs[i,1].title.set_text(title_obj[i] + ' (approximation)')
         axs[i,1].legend(bbox_to_anchor=(1.05, 0.75))
-
+        
     fig.tight_layout(pad = 3)
     plt.show()
     
     v_T2.append(v_opt2[10])
     
+    
 
 
+
+print('Optimal vaccination order for second time period')
 
 for i in range(n_obj):
     print(title_obj[i])
@@ -458,7 +415,6 @@ for i in range(n_obj):
         k=0
         for N in N_range: 
             temp1, temp2, temp3, temp4, group_to_vaccinate = delta_2(N,beta,INPUT,T)
-            print(group_to_vaccinate)
             k+=1
             temp = []
             for j in range(2*n_groups): 
@@ -494,11 +450,11 @@ for i in range(1): #looping through objectives
     axs[1].set_xlabel(r'$\frac{N}{P}$')
     axs[1].set_ylabel('Optimal vaccine allocation')
     axs[1].set_title(title_obj[i] + ' (approximation)', pad = 10)
-    axs[1].legend(bbox_to_anchor=(1.05, 0.75))
+    axs[1].legend(bbox_to_anchor=(1.05, 0.92))
     axs[1].set_ylim((-0.005,0.08))
 
 fig.tight_layout(pad = 3)
-# plt.savefig("Output/v_0.01_T2_inf={}.eps".format(T))
+plt.savefig("Output/SIS/v_inf_T2={}.png".format(T), bbox_inches='tight')
 plt.show()
 
 
@@ -620,6 +576,7 @@ for k in range(len(time_horizons)):
 
 pd.set_option('display.float_format', lambda x: f'{x:.3f}')
 df
+
 
 
 

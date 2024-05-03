@@ -1,13 +1,13 @@
+# # Calibration
+
 import scipy.integrate as spi
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 from pyDOE import *
-import math
 import pickle
 from scipy.linalg import eigh
-import seaborn as sns
 
 
 
@@ -16,6 +16,7 @@ plt.rc('font',**{'family':'serif','serif':['Computer Modern Roman'],'size':14})
 
 
 # ## Defining uncalibrated parameters (from literature review)
+
 
 # Parameters for COVID19 - from literature review
 
@@ -27,7 +28,7 @@ f[2] = 0.3145
 f[3] = 1-f[0]-f[1]-f[2]
 
 # Average durations
-av_duration_mild = 11 #incubation + mild symptoms
+av_duration_mild = 11
 av_duration_severe = 8
 
 # Proportion of severe cases
@@ -205,6 +206,7 @@ num_days = [num_days_deaths]
 targets = raw_data[['rolling_deaths']].values[0:num_days_deaths]
 
 
+
 # Plot targets
 
 target_range = raw_data[['date']].values[0:num_days_deaths]
@@ -218,7 +220,7 @@ ax.set_xlabel('Date')
 ax.set_ylabel('New Deaths')
 ax.legend(loc=0)
 plt.tight_layout()
-plt.savefig("Output/Calibration/rolling_deaths.eps")
+plt.savefig("Output/Calibration/rolling_deaths.png")
 plt.show()
 
 fig, ax = plt.subplots()
@@ -230,7 +232,7 @@ ax.set_xlabel('Date')
 ax.set_ylabel('New Cases')
 ax.legend(loc=0)
 plt.tight_layout()
-plt.savefig("Output/Calibration/rolling_cases.eps")
+plt.savefig("Output/Calibration/rolling_cases.png")
 plt.show()
 
 
@@ -479,8 +481,9 @@ ax.set_xlabel('Date')
 ax.set_ylabel('New Deaths')
 ax.legend(loc=0)
 plt.tight_layout()
-plt.savefig("Output/Calibration/calibration_deaths.eps")
+plt.savefig("Output/Calibration/calibration_deaths.png")
 plt.show()
+
 
 
 # Compare number of cases to model output
@@ -497,18 +500,18 @@ ax.set_xlabel('Date')
 ax.set_ylabel('New Cases')
 ax.legend(loc=0)
 plt.tight_layout()
-plt.savefig("Output/Calibration/calibration_cases.eps")
+plt.savefig("Output/Calibration/calibration_cases.png")
 plt.show()
 
 
 
+
 # Export parameters
-with open('Data/calibrated_parameters_4.pkl', 'wb') as data:
+with open('Data/calibrated_parameters.pkl', 'wb') as data:
     pickle.dump([beta, INPUT], data)
 
 with open('Data/literature_parameters.pkl', 'wb') as data2:
     pickle.dump([gamma_u, gamma_v, gamma_b, mu_u, mu_v, mu_b, f, eta_v, eta_b], data2)
-
 
 
 
