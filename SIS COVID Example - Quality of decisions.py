@@ -408,26 +408,26 @@ for T in time_horizons:
 
 
 
-# print('Optimal vaccination order for second time period')
+print('Optimal vaccination order for second time period')
 
-# for i in range(n_obj):
-#     print(title_obj[i])
-#     for T in time_horizons: 
-#         current = np.zeros(8)
-#         print('T =', T, 'days')
-#         k=0
-#         for N in N_range: 
-#             temp1, temp2, temp3, temp4, group_to_vaccinate = delta_2(N,beta,INPUT,T)
-#             k+=1
-#             temp = []
-#             for j in range(2*n_groups): 
-#                 if group_to_vaccinate[i,j] < 4: 
-#                     temp.append('v{}'.format(int(group_to_vaccinate[i,j]+1)))
-#                 else: 
-#                     temp.append('b{}'.format(int(group_to_vaccinate[i,j]-3)))
-#             if not np.array_equal(group_to_vaccinate[i,:], current): 
-#                 print('Switch point N =', N, ', approximated optimal order is: \n', temp)
-#                 current = group_to_vaccinate[i,:] 
+for i in range(n_obj):
+    print(title_obj[i])
+    for T in time_horizons: 
+        current = np.zeros(8)
+        print('T =', T, 'days')
+        k=0
+        for N in N_range: 
+            temp1, temp2, temp3, temp4, group_to_vaccinate = delta_2(N,beta,INPUT,T)
+            k+=1
+            temp = []
+            for j in range(2*n_groups): 
+                if group_to_vaccinate[i,j] < 4: 
+                    temp.append('v{}'.format(int(group_to_vaccinate[i,j]+1)))
+                else: 
+                    temp.append('b{}'.format(int(group_to_vaccinate[i,j]-3)))
+            if not np.array_equal(group_to_vaccinate[i,:], current): 
+                print('Switch point N =', N, ', approximated optimal order is: \n', temp)
+                current = group_to_vaccinate[i,:] 
                 
 
 

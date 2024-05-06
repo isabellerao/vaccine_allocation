@@ -8,7 +8,6 @@ import pandas as pd
 from pyDOE import *
 import pickle
 from scipy.linalg import eigh
-from IPython.display import display
 
 
 
