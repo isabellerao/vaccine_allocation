@@ -4,6 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from pyDOE import *
+from IPython.display import display
 
 
 
@@ -110,7 +111,7 @@ S2b = S0*f[1]/m
 S1b2 = S0*f[0]/m
 S2b2 = S0*f[1]/m
 
-INPUT = (S1u, S1v, S1b, S1b2, S2u, S2v, S2b, S2b2,         E1u, E1v, E1b, E1b2, E2u, E2v, E2b, E2b2,         I1u, I1v, I1b, I1b2, I2u, I2v, I2b, I2b2, D0*f[0], D0*f[1])
+INPUT = (S1u, S1v, S1b, S1b2, S2u, S2v, S2b, S2b2, E1u, E1v, E1b, E1b2, E2u, E2v, E2b, E2b2, I1u, I1v, I1b, I1b2, I2u, I2v, I2b, I2b2, D0*f[0], D0*f[1])
 
 beta = np.zeros((n,n))
 beta[0,0] = 4
@@ -303,7 +304,7 @@ def approx_function(N,parameters,INPUT,T):
 
 
 def delta(N,parameters,INPUT,T): 
-    S1u, S1v, S1b, S1b2, S2u, S2v, S2b, S2b2,    E1u, E1v, E1b, E1b2, E2u, E2v, E2b, E2b2,    I1u, I1v, I1b, I1b2, I2u, I2v, I2b, I2b2, D10, D20 = INPUT
+    S1u, S1v, S1b, S1b2, S2u, S2v, S2b, S2b2, E1u, E1v, E1b, E1b2, E2u, E2v, E2b, E2b2, I1u, I1v, I1b, I1b2, I2u, I2v, I2b, I2b2, D10, D20 = INPUT
     
     v1_range = np.arange(0, S1u, 0.01)
     v2_range = np.arange(0, S2u, 0.01)
@@ -344,6 +345,7 @@ l = [r'$v_{1,1}$', r'$v_{1,2}$', r'$v_{1,3}$', r'$v_{2,1}$', r'$v_{2,2}$', r'$v_
 N_range = np.arange(0, 0.101, 0.01)
 v_T1 = []
 
+print('First time period')
 t = 0
 for T in time_horizons: 
     print('T =', T, 'days')
@@ -354,14 +356,14 @@ for T in time_horizons:
     
     k=0
     for N in N_range: 
-        numerical_optimal[k,:], difference[k,:], v_opt[k,:,:], v_approx[k,:,:], group_to_vaccinate             = delta(N,beta,INPUT,T)
+        numerical_optimal[k,:], difference[k,:], v_opt[k,:,:], v_approx[k,:,:], group_to_vaccinate = delta(N,beta,INPUT,T)
         k+=1
     
     plt.figure(figsize=(5,4))
     for i in range(difference.shape[1]): #looping through objectives
         plt.plot(N_range, difference[:,i], 'o', label = title_obj[i], alpha=0.7)
         plt.xlabel(r'$\frac{N}{P}$')
-        plt.title("Percentage difference")
+        plt.title("Percentage difference".format(T))
     plt.legend(loc = 'upper right', bbox_to_anchor=(2, 0.75))
     plt.ylim((-0.3,3))
     plt.savefig("Output/SEIS/difference_T1={}.png".format(T), bbox_inches='tight')
@@ -421,6 +423,7 @@ def delta_2(N,parameters,INPUT,T):
 
 v_T2 = []
 
+print('Second time period')
 t = 0
 for T in time_horizons: 
     print('T =', T, 'days')
@@ -431,7 +434,7 @@ for T in time_horizons:
     
     k=0
     for N in N_range: 
-        numerical_optimal2[k,:], difference2[k,:], v_opt2[k,:,:], v_approx2[k,:,:], group_to_vaccinate2             = delta_2(N,beta,INPUT,T)
+        numerical_optimal2[k,:], difference2[k,:], v_opt2[k,:,:], v_approx2[k,:,:], group_to_vaccinate2 = delta_2(N,beta,INPUT,T)
         k+=1
         
     plt.figure(figsize=(5,4))
@@ -621,17 +624,17 @@ for k in range(len(time_horizons)):
     LY_averted_g2 = (obj_vacc[2] - obj_g2[2])/obj_g2[2]
     QALY_averted_g2 = (obj_vacc[3] - obj_g2[3])/obj_g2[3]
     
-    df.loc[len(df.index)] = [T, N, "Proportional vaccines",  inf_averted_prop, deaths_averted_prop,                                                         LY_averted_prop, QALY_averted_prop] 
-    df.loc[len(df.index)] = [T, N, "Proportional first doses",  inf_averted_prop_initial, deaths_averted_prop_initial,                                                         LY_averted_prop_initial, QALY_averted_prop_initial] 
-    df.loc[len(df.index)] = [T, N, "Proportional second doses",  inf_averted_prop_booster, deaths_averted_prop_booster,                                                         LY_averted_prop_booster, QALY_averted_prop_booster]
-    df.loc[len(df.index)] = [T, N, "Proportional third doses",  inf_averted_prop_booster_2, deaths_averted_prop_booster_2,                                                         LY_averted_prop_booster_2, QALY_averted_prop_booster_2]
-    df.loc[len(df.index)] = [T, N, "Highest initial force of infection",                             inf_averted_g1, deaths_averted_g1,LY_averted_g1, QALY_averted_g1] 
-    df.loc[len(df.index)] = [T, N, "Highest mortality rate",                             inf_averted_g2, deaths_averted_g2, LY_averted_g2, QALY_averted_g2] 
-    df.loc[len(df.index)] = [T, N, "Numerical optimal",                             inf_averted_num, deaths_averted_num, LY_averted_num, QALY_averted_num] 
+    df.loc[len(df.index)] = [T, N, "Proportional vaccines", inf_averted_prop, deaths_averted_prop, LY_averted_prop, QALY_averted_prop] 
+    df.loc[len(df.index)] = [T, N, "Proportional first doses", inf_averted_prop_initial, deaths_averted_prop_initial, LY_averted_prop_initial, QALY_averted_prop_initial] 
+    df.loc[len(df.index)] = [T, N, "Proportional second doses", inf_averted_prop_booster, deaths_averted_prop_booster, LY_averted_prop_booster, QALY_averted_prop_booster]
+    df.loc[len(df.index)] = [T, N, "Proportional third doses", inf_averted_prop_booster_2, deaths_averted_prop_booster_2, LY_averted_prop_booster_2, QALY_averted_prop_booster_2]
+    df.loc[len(df.index)] = [T, N, "Highest initial force of infection", inf_averted_g1, deaths_averted_g1,LY_averted_g1, QALY_averted_g1] 
+    df.loc[len(df.index)] = [T, N, "Highest mortality rate", inf_averted_g2, deaths_averted_g2, LY_averted_g2, QALY_averted_g2] 
+    df.loc[len(df.index)] = [T, N, "Numerical optimal", inf_averted_num, deaths_averted_num, LY_averted_num, QALY_averted_num] 
     
 pd.set_option('display.float_format', lambda x: f'{x:.3f}')
-df
-
+display(df)
+df.to_csv('Output/SEIS/Table outcomes.csv', index=False)
 
 
 

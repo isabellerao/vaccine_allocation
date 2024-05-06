@@ -8,6 +8,7 @@ import pandas as pd
 from pyDOE import *
 import pickle
 from scipy.linalg import eigh
+from IPython.display import display
 
 
 
@@ -333,7 +334,7 @@ for i in range(num_samples):
     S3b = S0*f[2]*0.128808784
     S4b = S0*f[3]*0.359714063
     
-    INPUT = (S1u, S2u, S3u, S4u, S1v, S2v, S3v, S4v, S1b, S2b, S3b, S4b,             I1u, I2u, I3u, I4u, I1v, I2v, I3v, I4v, I1b, I2b, I3b, I4b, D0)
+    INPUT = (S1u, S2u, S3u, S4u, S1v, S2v, S3v, S4v, S1b, S2b, S3b, S4b, I1u, I2u, I3u, I4u, I1v, I2v, I3v, I4v, I1b, I2b, I3b, I4b, D0)
     
     GoF[i] = GoF_wsse(calibration(ND=max(num_days)),targets,num_days)
     
@@ -441,7 +442,7 @@ S2b = S0*f[1]*0.078083435
 S3b = S0*f[2]*0.128808784
 S4b = S0*f[3]*0.359714063
     
-INPUT = (S1u, S2u, S3u, S4u, S1v, S2v, S3v, S4v, S1b, S2b, S3b, S4b,             I1u, I2u, I3u, I4u, I1v, I2v, I3v, I4v, I1b, I2b, I3b, I4b, D0)
+INPUT = (S1u, S2u, S3u, S4u, S1v, S2v, S3v, S4v, S1b, S2b, S3b, S4b, I1u, I2u, I3u, I4u, I1v, I2v, I3v, I4v, I1b, I2b, I3b, I4b, D0)
 
 # Run model with best set of parameters
 model_calibrated = calibration(ND=365)

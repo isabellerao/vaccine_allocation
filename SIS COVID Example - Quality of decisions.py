@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pyDOE import *
 import pickle
+from IPython.display import display
 
 
 
@@ -118,8 +119,8 @@ def model(INPUT,ND,v): # vaccinated (4) and boosted (4)
 
 
     end_deaths = D[ND]-INPUT[24]-INPUT[25]-INPUT[26]-INPUT[27] 
-    end_lifeyears = L1*(RES[ND,24]-INPUT[24])+L2*(RES[ND,25]-INPUT[25])                    +L3*(RES[ND,26]-INPUT[26])+L4*(RES[ND,27]-INPUT[27]) 
-    end_qalys = q1L1*(RES[ND,24]-INPUT[24])+q2L2*(RES[ND,25]-INPUT[25])                    +q3L3*(RES[ND,26]-INPUT[26])+q4L4*(RES[ND,27]-INPUT[27]) 
+    end_lifeyears = L1*(RES[ND,24]-INPUT[24])+L2*(RES[ND,25]-INPUT[25])+L3*(RES[ND,26]-INPUT[26])+L4*(RES[ND,27]-INPUT[27]) 
+    end_qalys = q1L1*(RES[ND,24]-INPUT[24])+q2L2*(RES[ND,25]-INPUT[25])+q3L3*(RES[ND,26]-INPUT[26])+q4L4*(RES[ND,27]-INPUT[27]) 
     
     return(end_pop, [all_infections*pop_size,end_deaths*pop_size,end_lifeyears*pop_size,end_qalys*pop_size])
     
@@ -227,7 +228,7 @@ def approx_function(N,parameters,INPUT,T):
 
 
 def delta(N,parameters,INPUT,T): 
-    S1u, S2u, S3u, S4u, S1v, S2v, S3v, S4v, S1b, S2b, S3b, S4b,    I1u, I2u, I3u, I4u, I1v, I2v, I3v, I4v, I1b, I2b, I3b, I4b, D10, D20, D30, D40 = INPUT
+    S1u, S2u, S3u, S4u, S1v, S2v, S3v, S4v, S1b, S2b, S3b, S4b, I1u, I2u, I3u, I4u, I1v, I2v, I3v, I4v, I1b, I2b, I3b, I4b, D10, D20, D30, D40 = INPUT
         
     v1_range = np.arange(0, S1u, 0.01)
     v2_range = np.arange(0, S2u, 0.01)
@@ -270,6 +271,7 @@ def delta(N,parameters,INPUT,T):
 N_range = np.arange(0, 0.101, 0.01)
 v_T1 = []
 
+print('First time period')
 t = 0
 for T in time_horizons: 
     print('T =', T, 'days')
@@ -316,7 +318,7 @@ for T in time_horizons:
 
     fig.tight_layout(pad = 3)
     plt.show()
-    
+
     v_T1.append(v_opt[10])
     
 
@@ -352,6 +354,7 @@ def delta_2(N,parameters,INPUT,T):
 
 v_T2 = []
 
+print('Second time period')
 t = 0
 for T in time_horizons: 
     print('T =', T, 'days')
@@ -405,26 +408,26 @@ for T in time_horizons:
 
 
 
-print('Optimal vaccination order for second time period')
+# print('Optimal vaccination order for second time period')
 
-for i in range(n_obj):
-    print(title_obj[i])
-    for T in time_horizons: 
-        current = np.zeros(8)
-        print('T =', T, 'days')
-        k=0
-        for N in N_range: 
-            temp1, temp2, temp3, temp4, group_to_vaccinate = delta_2(N,beta,INPUT,T)
-            k+=1
-            temp = []
-            for j in range(2*n_groups): 
-                if group_to_vaccinate[i,j] < 4: 
-                    temp.append('v{}'.format(int(group_to_vaccinate[i,j]+1)))
-                else: 
-                    temp.append('b{}'.format(int(group_to_vaccinate[i,j]-3)))
-            if not np.array_equal(group_to_vaccinate[i,:], current): 
-                print('Switch point N =', N, ', approximated optimal order is: \n', temp)
-                current = group_to_vaccinate[i,:] 
+# for i in range(n_obj):
+#     print(title_obj[i])
+#     for T in time_horizons: 
+#         current = np.zeros(8)
+#         print('T =', T, 'days')
+#         k=0
+#         for N in N_range: 
+#             temp1, temp2, temp3, temp4, group_to_vaccinate = delta_2(N,beta,INPUT,T)
+#             k+=1
+#             temp = []
+#             for j in range(2*n_groups): 
+#                 if group_to_vaccinate[i,j] < 4: 
+#                     temp.append('v{}'.format(int(group_to_vaccinate[i,j]+1)))
+#                 else: 
+#                     temp.append('b{}'.format(int(group_to_vaccinate[i,j]-3)))
+#             if not np.array_equal(group_to_vaccinate[i,:], current): 
+#                 print('Switch point N =', N, ', approximated optimal order is: \n', temp)
+#                 current = group_to_vaccinate[i,:] 
                 
 
 
@@ -566,17 +569,17 @@ for k in range(len(time_horizons)):
     LY_averted_num = (obj_vacc[2] - obj_num[2])/obj_num[2]
     QALY_averted_num = (obj_vacc[3] - obj_num[3])/obj_num[3]
     
-    df.loc[len(df.index)] = [T, N, "Proportional vaccines",  inf_averted_prop, deaths_averted_prop,                                                         LY_averted_prop, QALY_averted_prop] 
-    df.loc[len(df.index)] = [T, N, "Proportional initial doses",  inf_averted_prop_initial, deaths_averted_prop_initial,                                                         LY_averted_prop_initial, QALY_averted_prop_initial] 
-    df.loc[len(df.index)] = [T, N, "Proportional booster doses",  inf_averted_prop_booster, deaths_averted_prop_booster,                                                         LY_averted_prop_booster, QALY_averted_prop_booster] 
-    df.loc[len(df.index)] = [T, N, "Highest initial force of infection",                             inf_averted_g3, deaths_averted_g3,LY_averted_g3, QALY_averted_g3] 
-    df.loc[len(df.index)] = [T, N, "Highest mortality rate",                             inf_averted_g4, deaths_averted_g4, LY_averted_g4, QALY_averted_g4] 
-    df.loc[len(df.index)] = [T, N, "Numerical optimal",                             inf_averted_num, deaths_averted_num, LY_averted_num, QALY_averted_num] 
+    df.loc[len(df.index)] = [T, N, "Proportional vaccines", inf_averted_prop, deaths_averted_prop, LY_averted_prop, QALY_averted_prop] 
+    df.loc[len(df.index)] = [T, N, "Proportional initial doses", inf_averted_prop_initial, deaths_averted_prop_initial, LY_averted_prop_initial, QALY_averted_prop_initial] 
+    df.loc[len(df.index)] = [T, N, "Proportional booster doses", inf_averted_prop_booster, deaths_averted_prop_booster, LY_averted_prop_booster, QALY_averted_prop_booster] 
+    df.loc[len(df.index)] = [T, N, "Highest initial force of infection", inf_averted_g3, deaths_averted_g3,LY_averted_g3, QALY_averted_g3] 
+    df.loc[len(df.index)] = [T, N, "Highest mortality rate", inf_averted_g4, deaths_averted_g4, LY_averted_g4, QALY_averted_g4] 
+    df.loc[len(df.index)] = [T, N, "Numerical optimal", inf_averted_num, deaths_averted_num, LY_averted_num, QALY_averted_num] 
 
 
 pd.set_option('display.float_format', lambda x: f'{x:.3f}')
-df
-
+display(df)
+df.to_csv('Output/SIS/Table outcomes.csv', index=False)
 
 
 
